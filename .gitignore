@@ -11,6 +11,3 @@ Thumbs.db
 # Logs
 **/logs/
 **/*.log
-
-# Build
-cms-frontend/dist/
