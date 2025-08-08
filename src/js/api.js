@@ -14,8 +14,6 @@ fetch('/config/config.json', { cache: 'no-store' })
         console.warn("Nie udało się wczytać config.json, używam domyślnego API_BASE:", API_BASE)
     })
 
-export { API_BASE }
-
 // ogólny helper: rzuca błędem przy !ok; przy 401/403 dodatkowo kieruje na login (z ?next=)
 export async function api(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
