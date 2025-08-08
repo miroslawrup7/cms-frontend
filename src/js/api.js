@@ -1,5 +1,9 @@
 // src/js/api.js
-let API_BASE = "http://localhost:5000"
+let API_BASE = 'http://localhost:5000'  // domyślna wartość (fallback)
+
+function setApiBase(url) {
+    API_BASE = url
+}
 
 fetch('/config/config.json', { cache: 'no-store' })
     .then(res => res.ok ? res.json() : null)
@@ -53,3 +57,5 @@ export async function getProfile() {
   const { status, data } = await apiWithStatus('/api/users/profile')
   return status === 200 ? data : null
 }
+
+export { API_BASE, setApiBase }

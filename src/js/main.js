@@ -1,4 +1,16 @@
 import { API_BASE } from './api.js'
+
+function startApp(api) {
+   
+    api.getProfile()
+        .then(profile => {
+            console.log('Załadowany profil:', profile)
+            // Inicjalizacja reszty aplikacji
+        })
+        .catch(err => {
+            console.warn('Brak profilu:', err)
+        })
+
 const limit = 5
 let totalPages = 1
 
@@ -13,6 +25,24 @@ const prevBtn   = document.getElementById('prev')
 const nextBtn   = document.getElementById('next')
 const qInput    = document.getElementById('q')
 const sortSel   = document.getElementById('sort')
+
+async function loadConfig() {
+    try {
+        const res = await fetch('/config/config.json', { cache: 'no-store' })
+        if (!res.ok) throw new Error('Błąd wczytywania config.json')
+        const cfg = await res.json()
+        if (!cfg.API_BASE) throw new Error('Brak API_BASE w config.json')
+
+        // Dynamiczny import api.js z ustawieniem API_BASE
+        const apiModule = await import('./api.js')
+        apiModule.setApiBase(cfg.API_BASE)
+
+        // Po załadowaniu config i ustawieniu API_BASE, uruchom właściwy kod aplikacji
+        startApp(apiModule)
+    } catch (err) {
+        console.error('Błąd ładowania konfiguracji:', err)
+    }
+}
 
 // === Odczyt stanu z URL i wypełnienie kontrolek ===
 function readStateFromUrl() {
@@ -198,3 +228,6 @@ window.addEventListener('popstate', () => {
 readStateFromUrl()
 syncUrl()
 loadArticles(currentPage)
+loadConfig()
+}
+
