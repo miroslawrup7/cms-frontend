@@ -1,0 +1,19 @@
+.generic-card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 6px;
+    background-color: #fff;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.generic-card h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.generic-card .meta {
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 0.5rem;
+}

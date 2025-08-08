@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/main.css?cache_bust=123">
+    <title>Artykuły</title>
+</head>
+
+<body>
+
+    <main class="main-wrapper">
+        <div class="page-header">
+            <h1 class="page-title">Artykuły</h1>
+
+            <a href="/new-article.html" data-role="authorOrAdmin" class="btn btn--primary hidden" id="newArticleTopBtn">
+                Dodaj artykuł
+            </a>
+        </div>
+
+        <section class="filters">
+            <input type="search" id="q" placeholder="Szukaj w tytule i treści…" />
+            <select id="sort">
+                <option value="newest">Najnowsze</option>
+                <option value="mostLiked">Najpopularniejsze</option>
+                <option value="oldest">Najstarsze</option>
+                <option value="titleAZ">Tytuł A–Z</option>
+                <option value="titleZA">Tytuł Z–A</option>
+            </select>
+        </section>
+
+
+        <div id="articles-container"></div>
+
+        <div id="pagination" class="pagination">
+            <button id="prev">Poprzednia</button>
+            <span id="page-info"></span>
+            <button id="next">Następna</button>
+        </div>
+    </main>
+
+    <script type="module" src="./js/nav.js?cache_bust=123"></script>
+    <script type="module" src="./js/header.js?cache_bust=123"></script>
+    <script type="module" src="./js/main.js?cache_bust=123"></script>
+</body>
+
+</html>

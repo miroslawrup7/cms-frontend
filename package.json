@@ -1,0 +1,22 @@
+
+{
+    "name": "gulp-modern-starter",
+    "version": "1.0.0",
+    "description": "Zoptymalizowany projekt Gulp 4 pod Node 20+",
+    "scripts": {
+        "start": "gulp"
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.17",
+        "browser-sync": "^2.29.3",
+        "cssnano": "^6.0.1",
+        "gulp": "^4.0.2",
+        "gulp-dart-sass": "^1.1.0",
+        "gulp-postcss": "^9.0.1",
+        "gulp-replace": "^1.1.4",
+        "gulp-sass": "^5.1.0",
+        "gulp-sourcemaps": "^3.0.0",
+        "gulp-terser": "^2.1.0",
+        "sass": "^1.75.0"
+    }
+}

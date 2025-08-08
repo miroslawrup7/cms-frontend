@@ -1,0 +1,29 @@
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+
+    label {
+        font-weight: 600;
+        margin-right: 6px;
+    }
+
+    select,
+    input[type='text'] {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    #q {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    #sort {
+        min-width: 150px;
+    }
+}

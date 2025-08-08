@@ -1,0 +1,25 @@
+.like-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: color 0.2s ease-in-out;
+
+    &:hover {
+        color: #222;
+    }
+
+    &.liked {
+        color: #e63946;
+        font-weight: bold;
+    }
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+}

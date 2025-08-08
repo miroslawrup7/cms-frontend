@@ -1,0 +1,19 @@
+@use './base/layout';
+@use './base/reset';
+@use './base/typography';
+
+@use './components/admin-panel';
+@use './components/article';
+@use './components/article-card';
+@use './components/buttons';
+@use './components/comments';
+@use './components/filters';
+@use './components/form';
+@use './components/generic-card';
+@use './components/like';
+@use './components/pagination';
+@use './components/search';
+@use './components/table';
+@use './components/toast';
+
+@use './layout/header';
