@@ -1,37 +1,43 @@
 // src/js/api.js
-// Jedno miejsce prawdy dla API_BASE + bezpieczne wrappery fetch
+let API_BASE = "http://localhost:5000";
 
-let API_BASE = 'http://localhost:5000';
+/**
+ * Ładuje /config/config.json i ustawia API_BASE.
+ * Wołamy to TYLKO w plikach "startowych" (main.js, article.js).
+ */
+export async function loadConfig() {
+  try {
+    const res = await fetch("/config/config.json", { cache: "no-store" });
+    if (res.ok) {
+      const cfg = await res.json();
+      if (cfg?.API_BASE) {
+        API_BASE = cfg.API_BASE;
+      }
+    }
+  } catch (_) {
+    // zostawiamy fallback z góry
+  }
 
-// Udostępniam bieżącą wartość API_BASE
+  // --- DODANE: runtime override w zależności od hosta ---
+  // Lokalnie (localhost) zostawiamy jak jest (z .env/config.json).
+  // Na Render (hostname kończy się na onrender.com) wymuszamy backend z Rendera.
+  if (/onrender\.com$/i.test(location.hostname)) {
+    API_BASE = "https://cms-backend-o96s.onrender.com";
+  }
+
+  console.log("[api] API_BASE =", API_BASE);
+}
+
 export function getApiBase() {
   return API_BASE;
 }
 
-// 1) Wczytanie /config/config.json — ustawi API_BASE gdy plik istnieje
-export const configPromise = (async () => {
-  try {
-    const res = await fetch('/config/config.json', { cache: 'no-store' });
-    if (res.ok) {
-      const cfg = await res.json();
-      if (cfg?.API_BASE) {
-        API_BASE = String(cfg.API_BASE).replace(/\/+$/, ''); // bez trailing slash
-      }
-    }
-    console.log('[api] API_BASE =', API_BASE);
-  } catch (e) {
-    console.warn('[api] Nie udało się wczytać config.json. Zostaje domyślne:', API_BASE);
-  }
-})();
-
-// 2) Helpery HTTP
-
+/** Helper z obsługą 401/403 i JSON */
 export async function api(path, options = {}) {
-  const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    ...options,
   });
 
   let data = null;
@@ -39,32 +45,31 @@ export async function api(path, options = {}) {
 
   if (res.status === 401 || res.status === 403) {
     const next = encodeURIComponent(location.pathname + location.search);
-    if (!location.pathname.endsWith('/login.html')) {
+    if (!location.pathname.endsWith("/login.html")) {
       location.href = `/login.html?next=${next}`;
     }
-    throw new Error(data?.message || 'Wymagane zalogowanie');
+    throw new Error(data?.message || "Wymagane zalogowanie");
   }
   if (!res.ok) {
-    throw new Error(data?.message || `HTTP ${res.status}`);
+    throw new Error(data?.message || `Błąd ${res.status}`);
   }
   return data;
 }
 
+/** Wariant z pełnym statusem (użyteczne przy 409 itp.) */
 export async function apiWithStatus(path, options = {}) {
-  const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    ...options,
   });
-
   let data = null;
   try { data = await res.json(); } catch {}
   return { status: res.status, ok: res.ok, data };
 }
 
-// 3) Szybki endpoint do profilu
+/** Zwraca profil lub null */
 export async function getProfile() {
-  const { status, data } = await apiWithStatus('/api/users/profile');
+  const { status, data } = await apiWithStatus("/api/users/profile", { method: "GET" });
   return status === 200 ? data : null;
 }
