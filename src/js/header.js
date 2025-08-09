@@ -1,6 +1,9 @@
 // src/js/header.js
 import { getApiBase, getProfile } from './api.js';
 
+// tutaj NIE wołamy loadConfig — robi to main.js/article.js
+console.log("[header] API_BASE =", getApiBase());
+
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[header] API_BASE =', getApiBase());
 
