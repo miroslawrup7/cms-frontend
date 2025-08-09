@@ -1,118 +1,90 @@
 // src/js/login.js
-import { API_BASE } from './api.js'
-import { toast, toastError } from './toast.js' // jeśli nie używasz toastów, usuń importy i wywołania
+import { loadConfig, getApiBase, api, getProfile } from './api.js';
 
-function isEmail(s) {
-  return /^\S+@\S+\.\S+$/.test(String(s || '').trim())
-}
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadConfig();
+  console.log('[login] API_BASE =', getApiBase());
 
-function showError(msg) {
-  const el = document.getElementById('error')
-  if (el) {
-    el.textContent = msg
-    el.hidden = false
-    el.style.display = ''
-  }
-  if (typeof toastError === 'function') toastError(msg)
-}
+  const form      = document.getElementById('loginForm');
+  const emailEl   = document.getElementById('email');
+  const passEl    = document.getElementById('password');
+  const errorEl   = document.getElementById('error');   // <p id="error">
+  const showPwEl  = document.getElementById('togglePassword'); // np. <input type="checkbox" id="togglePassword">
+  const submitBtn = form?.querySelector('button[type="submit"]');
 
-function showSuccess(msg) {
-  if (typeof toast === 'function') toast(msg, 'success')
-}
-
-/** Bezpieczne wyliczenie adresu docelowego po logowaniu */
-function computeSafeRedirect(role) {
-  const params = new URLSearchParams(location.search)
-  let next = params.get('next') || '/'
-
+  // Jeśli już zalogowany, nie pokazuj formularza – przekieruj
   try {
-    const url = new URL(next, location.origin)
+    const me = await getProfile();
+    if (me) {
+      const params = new URLSearchParams(location.search);
+      location.replace(params.get('next') || '/');
+      return;
+    }
+  } catch { /* brak profilu = niezalogowany */ }
 
-    // 1) tylko ten sam origin
-    if (url.origin !== location.origin) return '/'
+  if (!form) return;
 
-    // 2) nigdy nie kieruj na login/register (by uniknąć pętli)
-    const p = url.pathname.toLowerCase()
-    if (p.endsWith('/login.html') || p.endsWith('/register.html')) return '/'
-
-    // 3) jeśli next=/admin.html, ale user nie jest adminem → fallback na /
-    if (p.endsWith('/admin.html') && role !== 'admin') return '/'
-
-    // OK — zwróć ścieżkę (zachowaj parametry)
-    return url.pathname + url.search + url.hash
-  } catch {
-    return '/'
+  // Pokaż/ukryj hasło (opcjonalne – jeśli element istnieje)
+  if (showPwEl && passEl) {
+    showPwEl.addEventListener('change', () => {
+      passEl.type = showPwEl.checked ? 'text' : 'password';
+    });
   }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('loginForm')
-  if (!form) return
-  form.addEventListener('submit', onSubmit)
-})
+  // ENTER w polu hasła
+  passEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') form.requestSubmit();
+  });
 
-async function onSubmit(e) {
-  e.preventDefault()
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
 
-  const emailEl = document.getElementById('email')
-  const passEl  = document.getElementById('password')
-  const errorEl = document.getElementById('error')
-  const submitBtn = e.submitter || document.querySelector('#loginForm button[type="submit"]')
+    const email = (emailEl?.value || '').trim();
+    const password = (passEl?.value || '').trim();
 
-  if (errorEl) errorEl.textContent = ''
-
-  const email = emailEl?.value?.trim()
-  const password = passEl?.value || ''
-
-  // Walidacja frontowa
-  if (!isEmail(email)) return showError('Podaj prawidłowy adres e-mail.')
-  if (password.length < 6) return showError('Hasło musi mieć co najmniej 6 znaków.')
-
-  if (submitBtn) submitBtn.disabled = true
-
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password })
-    })
-
-    let data = {}
-    try { data = await res.json() } catch {}
-
-    if (!res.ok) {
-      if (res.status === 429) return showError(data?.message || 'Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut.')
-      if (res.status === 400 || res.status === 401) return showError(data?.message || 'Nieprawidłowy e-mail lub hasło.')
-      return showError(data?.message || `Błąd serwera (${res.status}).`)
+    if (!email || !password) {
+      return setError('Podaj email i hasło.');
     }
 
-    showSuccess('Zalogowano pomyślnie.')
+    setBusy(true);
 
-    // (opcjonalnie) sprawdź rolę — wykorzystamy do bezpiecznego redirectu
-    let role = null
     try {
-      const pRes = await fetch(`${API_BASE}/api/users/profile`, { credentials: 'include' })
-      if (pRes.ok) {
-        const p = await pRes.json()
-        role = p?.role || null
-      }
-    } catch {}
+      await api('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
 
-    // —— BEZPIECZNY REDIRECT ——
-    // Priorytet: ?next= (zweryfikowany), w przeciwnym razie:
-    // admin → /admin.html, inni → /
-    let target = computeSafeRedirect(role)
-    if (!target || target === '/') {
-      target = (role === 'admin') ? '/admin.html' : '/'
+      const params = new URLSearchParams(location.search);
+      const next = params.get('next') || '/';
+      location.href = next;
+    } catch (err) {
+      setError(err?.message || 'Błąd logowania');
+    } finally {
+      setBusy(false);
     }
+  });
 
-    // nie zostawiaj login.html w historii
-    setTimeout(() => { location.replace(target) }, 300)
-
-  } catch {
-    showError('Błąd połączenia z serwerem.')
-  } finally {
-    if (submitBtn) submitBtn.disabled = false
+  function setBusy(busy) {
+    if (!submitBtn) return;
+    submitBtn.disabled = busy;
+    submitBtn.dataset.loading = busy ? '1' : '0';
+    submitBtn.textContent = busy ? 'Loguję…' : 'Zaloguj';
   }
-}
+
+  function setError(msg) {
+    if (errorEl) {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    } else {
+      alert(msg);
+    }
+  }
+
+  function clearError() {
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.style.display = '';
+    }
+  }
+});
