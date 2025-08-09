@@ -1,59 +1,70 @@
 // src/js/api.js
-let API_BASE = 'http://localhost:5000'  // domyślna wartość (fallback)
+// Jedno miejsce prawdy dla API_BASE + bezpieczne wrappery fetch
 
-function setApiBase(url) {
-    API_BASE = url
+let API_BASE = 'http://localhost:5000';
+
+// Udostępniam bieżącą wartość API_BASE
+export function getApiBase() {
+  return API_BASE;
 }
 
-fetch('/config/config.json', { cache: 'no-store' })
-    .then(res => res.ok ? res.json() : null)
-    .then(cfg => {
-        if (cfg?.API_BASE) API_BASE = cfg.API_BASE
-    })
-    .catch(() => {
-        console.warn("Nie udało się wczytać config.json, używam domyślnego API_BASE:", API_BASE)
-    })
+// 1) Wczytanie /config/config.json — ustawi API_BASE gdy plik istnieje
+export const configPromise = (async () => {
+  try {
+    const res = await fetch('/config/config.json', { cache: 'no-store' });
+    if (res.ok) {
+      const cfg = await res.json();
+      if (cfg?.API_BASE) {
+        API_BASE = String(cfg.API_BASE).replace(/\/+$/, ''); // bez trailing slash
+      }
+    }
+    console.log('[api] API_BASE =', API_BASE);
+  } catch (e) {
+    console.warn('[api] Nie udało się wczytać config.json. Zostaje domyślne:', API_BASE);
+  }
+})();
 
-// ogólny helper: rzuca błędem przy !ok; przy 401/403 dodatkowo kieruje na login (z ?next=)
+// 2) Helpery HTTP
+
 export async function api(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+  const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+  const res = await fetch(url, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options
-  })
-  let data = null
-  try { data = await res.json() } catch {}
+  });
+
+  let data = null;
+  try { data = await res.json(); } catch {}
 
   if (res.status === 401 || res.status === 403) {
-    const next = encodeURIComponent(location.pathname + location.search)
-    // nie przekierowujemy, jeśli już jesteśmy na stronie logowania
-    if (!location.pathname.endsWith("/login.html")) {
-      location.href = `/login.html?next=${next}`
+    const next = encodeURIComponent(location.pathname + location.search);
+    if (!location.pathname.endsWith('/login.html')) {
+      location.href = `/login.html?next=${next}`;
     }
-    throw new Error(data?.message || "Wymagane zalogowanie")
+    throw new Error(data?.message || 'Wymagane zalogowanie');
   }
   if (!res.ok) {
-    throw new Error(data?.message || `Błąd ${res.status}`)
+    throw new Error(data?.message || `HTTP ${res.status}`);
   }
-  return data
+  return data;
 }
 
-// wariant do świadomej obsługi statusu (np. dla 409 itp.)
 export async function apiWithStatus(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+  const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+  const res = await fetch(url, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options
-  })
-  let data = null
-  try { data = await res.json() } catch {}
-  return { status: res.status, ok: res.ok, data }
+  });
+
+  let data = null;
+  try { data = await res.json(); } catch {}
+  return { status: res.status, ok: res.ok, data };
 }
 
-// pobranie profilu; zwraca obiekt lub null
+// 3) Szybki endpoint do profilu
 export async function getProfile() {
-  const { status, data } = await apiWithStatus('/api/users/profile')
-  return status === 200 ? data : null
+  const { status, data } = await apiWithStatus('/api/users/profile');
+  return status === 200 ? data : null;
 }
-
-export { API_BASE, setApiBase }
