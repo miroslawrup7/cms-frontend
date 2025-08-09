@@ -1,4 +1,7 @@
-import { API_BASE, getProfile } from './api.js'
+import { getProfile } from './api.js'
+import { getApiBase } from './api.js'
+
+const API_BASE = getApiBase()
 
 /* Zbuduj HTML nagłówka */
 function buildHeader() {

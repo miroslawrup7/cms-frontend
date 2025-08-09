@@ -1,24 +1,27 @@
-// src/js/api.js
-let API_BASE = 'http://localhost:5000'  // domyślna wartość (fallback)
+let API_BASE = 'http://localhost:5000'
 
-function setApiBase(url) {
-    API_BASE = url
-}
-
-fetch('/config/config.json', { cache: 'no-store' })
+// Ładowanie konfiguracji z config.json
+function loadConfig() {
+  return fetch('/config/config.json', { cache: 'no-store' })
     .then(res => res.ok ? res.json() : null)
     .then(cfg => {
-        if (cfg?.API_BASE) API_BASE = cfg.API_BASE
+      if (cfg?.API_BASE) {
+        API_BASE = cfg.API_BASE
+        console.log('📦 API_BASE ustawione na:', API_BASE)
+      } else {
+        console.warn('⚠️ Brak API_BASE w config.json, używam domyślnego:', API_BASE)
+      }
     })
     .catch(() => {
-        console.warn("Nie udało się wczytać config.json, używam domyślnego API_BASE:", API_BASE)
+      console.warn('⚠️ Nie udało się wczytać config.json, używam domyślnego API_BASE:', API_BASE)
     })
+}
 
-// ogólny helper: rzuca błędem przy !ok; przy 401/403 dodatkowo kieruje na login (z ?next=)
-export async function api(path, options = {}) {
+// Główna funkcja do API (z obsługą błędów i redirectem)
+async function api(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     ...options
   })
   let data = null
@@ -26,23 +29,24 @@ export async function api(path, options = {}) {
 
   if (res.status === 401 || res.status === 403) {
     const next = encodeURIComponent(location.pathname + location.search)
-    // nie przekierowujemy, jeśli już jesteśmy na stronie logowania
-    if (!location.pathname.endsWith("/login.html")) {
+    if (!location.pathname.endsWith('/login.html')) {
       location.href = `/login.html?next=${next}`
     }
-    throw new Error(data?.message || "Wymagane zalogowanie")
+    throw new Error(data?.message || 'Wymagane zalogowanie')
   }
+
   if (!res.ok) {
     throw new Error(data?.message || `Błąd ${res.status}`)
   }
+
   return data
 }
 
-// wariant do świadomej obsługi statusu (np. dla 409 itp.)
-export async function apiWithStatus(path, options = {}) {
+// API z odpowiedzią i statusem (do sprawdzania logowania itd.)
+async function apiWithStatus(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     ...options
   })
   let data = null
@@ -50,10 +54,16 @@ export async function apiWithStatus(path, options = {}) {
   return { status: res.status, ok: res.ok, data }
 }
 
-// pobranie profilu; zwraca obiekt lub null
-export async function getProfile() {
+// Pobranie profilu użytkownika (lub null)
+async function getProfile() {
   const { status, data } = await apiWithStatus('/api/users/profile')
   return status === 200 ? data : null
 }
 
-export { API_BASE, setApiBase }
+export {
+  api,
+  apiWithStatus,
+  getProfile,
+  loadConfig,
+  API_BASE 
+}

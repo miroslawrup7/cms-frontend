@@ -1,4 +1,6 @@
-import { API_BASE } from './api.js'
+
+
+const API_BASE = getApiBase()
 
 // helper: pobierz parametr z URL
 function getParam(name) {
