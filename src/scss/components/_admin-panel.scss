@@ -1,0 +1,38 @@
+// SCSS: _admin-panel.scss
+
+.admin__search {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.5em;
+    margin-bottom: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.pagination {
+    margin-top: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+
+    &__btn {
+        padding: 0.4em 1em;
+        font-size: 0.9rem;
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    }
+
+    &__info {
+        font-weight: bold;
+    }
+}

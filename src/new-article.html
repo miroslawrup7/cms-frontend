@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/main.css?cache_bust=123">
+    <title>Artykuł</title>
+</head>
+
+<body>
+    <main class="container">
+        <h1 id="page-title">Nowy artykuł</h1>
+
+        <form id="article-form" enctype="multipart/form-data" class="form">
+            <label>Tytuł
+                <input id="title" name="title" type="text" />
+            </label>
+
+            <label>Treść
+                <textarea id="content" name="content" rows="10"></textarea>
+            </label>
+
+            <!-- istniejące obrazy przy edycji -->
+            <div id="existing-images" class="existing-images" style="display:none"></div>
+
+            <label>Obrazy (max 5, JPG/PNG/WebP, ≤ 5MB każdy)
+                <input id="images" name="images" type="file" accept="image/*" multiple />
+            </label>
+
+            <!-- podgląd nowych plików -->
+            <div id="preview" class="image-preview"></div>
+
+            <div id="form-error" class="form-error" style="display:none;"></div>
+            <div class="actions">
+                <button type="submit" class="btn btn--primary" id="submit-btn">Zapisz</button>
+                <a href="/" class="btn btn--ghost">Anuluj</a>
+            </div>
+        </form>
+    </main>
+
+    <script type="module" src="./js/nav.js?cache_bust=123"></script>
+    <script type="module" src="./js/header.js?cache_bust=123"></script>
+    <script type="module" src="./js/new-article.js?cache_bust=123"></script>
+</body>
+
+</html>

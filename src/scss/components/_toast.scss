@@ -1,0 +1,184 @@
+/* ================================
+   Toasty (dół ekranu) + Confirm modal
+   ================================ */
+
+/* Warstwa na toasty – pełna szerokość, dół ekranu, centrowanie */
+.toast-layer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    /* układ w kolumnie */
+    align-items: center;
+    /* centrowanie w poziomie */
+    gap: 10px;
+    /* odstęp między wieloma toastami */
+    z-index: 9999;
+    pointer-events: none;
+    /* klikamy tylko w same toasty */
+}
+
+/* Bazowy toast (pojawia się na dole, w .toast-layer) */
+.toast {
+    pointer-events: auto;
+    display: inline-block;
+    box-sizing: border-box;
+    max-width: min(92vw, 520px);
+    width: max-content;
+    /* dopasuj do treści, ale nie rozciągaj */
+    padding: 12px 16px;
+    border-radius: 6px;
+    background: #fff;
+    border: 2px solid #ccc;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
+    will-change: transform, opacity;
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform .18s ease, opacity .18s ease;
+
+    &.toast--hide {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+
+    &--success {
+        border-color: #2e7d32;
+    }
+
+    &--error {
+        border-color: #c62828;
+    }
+
+    &--info {
+        border-color: #1565c0;
+    }
+
+    &--warn,
+    &--warning {
+        border-color: #ef6c00;
+    }
+
+    .toast__actions {
+        margin-top: 8px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+}
+
+/* ================================
+   Confirm modal (wyśrodkowany w viewport)
+   ================================ */
+
+/* Przyciemnienie tła */
+.toast-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .18);
+    backdrop-filter: blur(1px);
+    z-index: 10000;
+    opacity: 1;
+    transition: opacity .18s ease;
+
+    &.toast-overlay--hide {
+        opacity: 0;
+    }
+}
+
+/* Sam modal potwierdzenia */
+.toast--confirm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* centrowanie względem środka elementu */
+    transform: translate(-50%, -50%);
+    z-index: 10001;
+    /* nad overlay */
+    max-width: min(92vw, 520px);
+    width: max-content;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: #fff;
+    /* własne tło (nie dziedziczy z .toast) */
+    border: 2px solid #1565c0;
+    /* delikatny akcent */
+    box-shadow: 0 10px 32px rgba(0, 0, 0, .20);
+    will-change: transform, opacity;
+    transition: transform .18s ease, opacity .18s ease;
+    opacity: 1;
+
+    &.toast--hide {
+        transform: translate(-50%, calc(-50% + 8px));
+        opacity: 0;
+    }
+
+    .toast__msg {
+        color: #111;
+        line-height: 1.45;
+    }
+
+    .toast__actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+
+        .btn {
+            font-size: .95rem;
+            padding: .5rem .9rem;
+            line-height: 1.1;
+            cursor: pointer;
+        }
+
+        .btn.btn--primary {
+            /* zachowaj swoje style globalne przycisków; to tylko fallback */
+            background: #1565c0;
+            color: #fff;
+            border: 1px solid #0d47a1;
+        }
+
+        .btn.btn--ghost {
+            background: transparent;
+            color: #111;
+            border: 1px solid #bbb;
+        }
+
+        .btn.btn--danger {
+            background: #c62828;
+            color: #fff;
+            border: 1px solid #8e0000;
+        }
+    }
+}
+
+/* ================================
+   Dodatki UX
+   ================================ */
+
+/* Gdy system preferuje mniej animacji */
+@media (prefers-reduced-motion: reduce) {
+
+    .toast,
+    .toast--confirm,
+    .toast-overlay {
+        transition: none !important;
+    }
+}
+
+/* Na bardzo wąskich ekranach — minimalne marginesy od krawędzi */
+@media (max-width: 420px) {
+    .toast-layer {
+        bottom: 16px;
+    }
+
+    .toast {
+        max-width: calc(100vw - 24px);
+    }
+
+    .toast--confirm {
+        max-width: calc(100vw - 24px);
+    }
+}

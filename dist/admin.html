@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/main.css?cache_bust=1755963668084">
+    <title>Panel administratora</title>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Wnioski rejestracyjne</h1>
+        <div id="status" style="display:none;"></div>
+        <table id="pendingTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>E-mail</th>
+                    <th>Rola</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody id="pendingBody">
+                <tr>
+                    <td colspan="4">Ładowanie…</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+    <script type="module" src="./js/nav.js?cache_bust=1755963668084"></script>
+    <script type="module" src="./js/header.js?cache_bust=1755963668084"></script>
+    <script type="module" src="./js/admin.js?cache_bust=1755963668084"></script>
+</body>
+
+</html>

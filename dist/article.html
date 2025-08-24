@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/main.css?cache_bust=1755963668084">
+    <title>Artykuł</title>
+
+<body>
+
+    <main class="article-wrapper">
+        <article id="article">
+            <a id="backToListBtn" href="/" class="btn btn--ghost btn--sm">← Wróć do listy</a>
+
+            <h1 id="article-title">Ładowanie...</h1>
+
+            <p id="article-meta" class="article-meta"></p>
+
+            <!-- nowa galeria zamiast pojedynczego <img> -->
+            <div id="article-gallery" class="article-gallery"></div>
+
+            <div id="article-content" class="article-content"></div>
+
+            <section class="comments-section">
+                <h3>Komentarze</h3>
+                <div id="comments-container">
+                    <p>Ładowanie komentarzy...</p>
+                </div>
+            </section>
+
+            <div id="comment-form-section" style="display:none">
+                <h3>Dodaj komentarz</h3>
+                <form id="comment-form">
+                    <textarea id="comment-text" placeholder="Napisz swój komentarz..." required></textarea>
+                    <button type="submit">Wyślij</button>
+                </form>
+                <div id="comment-error" style="color: red; display: none;"></div>
+            </div>
+
+        </article>
+    </main>
+
+    <script type="module" src="./js/nav.js?cache_bust=1755963668084"></script>
+    <script type="module" src="./js/header.js?cache_bust=1755963668084"></script>
+    <script type="module" src="./js/article.js?cache_bust=1755963668084"></script>
+
+</body>
+
+</html>

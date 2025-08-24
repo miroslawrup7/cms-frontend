@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/main.css?cache_bust=1755963668084">
+    <title>Logowanie</title>
+</head>
+
+<body>
+    <main class="login-container">
+        <h1>Zaloguj się</h1>
+        <form id="loginForm" novalidate>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Hasło:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Zaloguj</button>
+        </form>
+        <p id="error" class="error" aria-live="polite"></p>
+    </main>
+
+    <script type="module" src="./js/nav.js?cache_bust=1755963668084"></script>
+    <script type="module" src="./js/header.js?cache_bust=1755963668084"></script>
+    <script type="module" src="./js/login.js?cache_bust=1755963668084"></script>
+</body>
+
+</html>
